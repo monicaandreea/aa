@@ -2,72 +2,63 @@
 
 #include <iostream>
 #include <fstream>
-#include <vector>
+#include<vector>
 
-using namespace std;
+std::ifstream f("text.in");
 
 int main() {
-    ifstream in("knapsack.in");
+    int n, w, x;
+    f >> n >> w;
 
-    int n, w;
-    in >> n >> w;
+    std::vector<int> greutate;
+    std::vector<int> valoare;
+    std::vector< std::vector<int> > mat;
+    std::vector<int> lin(n + 1);
 
-    vector<int> weight(n +1), valori(n + 1);
-//    vector<vector<int>> matrice(w + 1);
-    int matrice[w + 1][n + 1];
+    for( int i=0 ; i<n ; i++){
+        f >> x;
+        greutate.push_back(x);
+    }
+    for( int i=0 ; i<n ; i++){
+        f >> x;
+        valoare.push_back(x);
+    }
 
-    for(int i = 0; i <= w; i++){
-        for(int j = 0; j <= n; j++){
-            matrice[i][j] = 0;
+    for( int i=0 ; i<=w ; i++){
+        mat.push_back( lin);
+    }
+
+    for( int i= 1 ; i<=w ; i++){
+        for(int j=1 ; j<=n ; j++) {
+            if (i - greutate[j-1] >= 0)
+                mat[i][j] = std::max(mat[i][j - 1], valoare[j-1] + mat[i - greutate[j-1]][j - 1]);
+            else
+                mat[i][j] = mat[i][j - 1];
         }
     }
 
-    for(int j = 0; j <= n; j++){
-        matrice[0][j] = 0;
-    }
+    /*for( int i= 0 ; i<=w ; i++){
+        for(int j=0 ; j<=n ; j++){
+            if(mat[i][j]<10)
+            std::cout<<mat[i][j]<<"   ";
+            else
+                std::cout<<mat[i][j]<<"  ";
+        }
+        std::cout<<"\n";
+    }*/
 
-    for(int i = 1; i <= n; i++){
-        in >> valori[i];
-    }
+    int val = mat[w][n];
+    std::cout<<"Profitul maxim este: "<<val<<"\n";
 
-    for(int i = 1; i <= n; i++) {
-        in >> weight[i];
-    }
-
-    for(int i = 1; i <= w; i++){
-        for(int j = 1; j <= n; j++){
-            if (i - weight[j] >= 0) // nu iese din matrice
-                matrice[i][j] = max(matrice[i][j - 1], valori[j] + matrice[i - weight[j]][j - 1]);
-            else{
-                matrice[i][j] = matrice[i][j - 1];
-            }
+    int i = w;
+    for( int j=n ; j>0 && val >0; j--){
+        if(val == mat[i][j-1]) { continue;}
+        else{
+            std::cout<<"A fost adaugat elementul de pe poz "<<j<<" cu greutatea "<<greutate[j-1]<<" si valoarea " << valoare[j-1]<<"\n";
+            val -= valoare[j-1];
+            i -= greutate[j-1];
         }
     }
 
-    for(int i = 0; i <= w; i++){
-        for(int j = 0; j <= n; j++){
-            cout << matrice[i][j] << " ";
-        }
-        cout << "\n";
-    }
-
-    cout << "Profitul maxim este " << matrice[w][n] << "\n";
-    int profitMaxim = matrice[w][n], g = w, i = w + 1, j = n + 1;
-
-    while(i > 0 && j > 0){
-        if(i - weight[j] >= 0){
-            i -= weight[j];
-            j -= 1;
-            cout << "Obiectul " << j << '\n';
-        }
-        else if(matrice[i][j - 1] == matrice[i][j]) {
-            j -= 1;
-        }
-        else if(i - weight[j] < 0) {
-            j -= 1;
-        }
-    }
-
-    in.close();
     return 0;
 }
