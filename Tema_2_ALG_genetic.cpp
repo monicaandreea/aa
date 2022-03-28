@@ -4,11 +4,13 @@
 #include <algorithm>
 #include <fstream>
 #include <ctime>
+#include <iomanip>
 #include <random>
 
 /* TODO
- * 1. make the fitness function have more decimals
- * 2. check the binary search (returns position before instead of after)
+ * 1. make the fitness function have more decimals -DONE
+ * 2. check the binary search (returns position before instead of after) -DONE
+ * 3. clean-up the max stuff
  */
 
 std::ifstream f("date.in");
@@ -175,7 +177,7 @@ class Algoritm{
 
             std::cout<< " x= " << mat[i].getValoare();
             std::cout << " codificat: " << mat[i].getValoareCod();
-            std::cout << " f= " << mat[i].getFitness() << "\n";
+            std::cout << " f= " << std::setprecision(15)<< mat[i].getFitness() << "\n";
 
         }
     }
@@ -212,8 +214,12 @@ class Algoritm{
             mid = (st +dr) / 2;
             if( interval[mid] < nr )
                 st = mid + 1;
-            else if( interval[mid] > nr)
+            else if( interval[mid] >= nr) {
+                if( interval[mid- 1] < nr ){
+                    return mid;
+                }
                 dr = mid - 1;
+            }
         }
         return mid;
     }
@@ -246,19 +252,24 @@ class Algoritm{
         return mat;
     }
 
-    std::pair<double, double> maximGeneratie( std::vector<Individ> mat){
+    //std::pair<double, double>
+    int maximGeneratie( std::vector<Individ> mat){
         double maxim_f, maxim_val;
+        int poz;
         for(int i = 0; i < dim_pop; i++){
             if( mat[i].getFitness() > maxim_f){
                 maxim_f = mat[i].getFitness();
                 maxim_val = mat[i].getValoare();
+                poz = i;
             }
         }
 
-    return std::make_pair(maxim_val, maxim_f);
+    //return std::make_pair(maxim_val, maxim_f);
+    return poz;
     }
 
-    std::pair<double, double> primaEtapa(){
+    //std::pair<double, double>
+    Individ primaEtapa(){
         puteriDoi();
 
         generatie = generareIndivizi();
@@ -289,7 +300,7 @@ class Algoritm{
         int i = 1;
         while( i<= dim_pop){
             double nr = (float)rand()/RAND_MAX;
-            double poz = gasesteInterval(nr, 0, interval.size());
+            double poz = gasesteInterval(nr, 0, interval.size()-1);
             std::cout<<"random: "<<nr<<" selectam cromozomul: "<<poz<<"\n";
             generatie_selectie.push_back(generatie[poz-1]);
             i ++;
@@ -326,7 +337,7 @@ class Algoritm{
         std::vector<int> aux_a, aux_b;
 
         for(i = 0 ; i<indivizi_incrucisare.size() - 1 ; i = i + 2){
-            int breakpoint = rand()%NR_GENE; // de facut general
+            int breakpoint = rand()%NR_GENE;
 
             aux_a =  generatie_selectie[indivizi_incrucisare[i]].getCod();
             aux_b =  generatie_selectie[indivizi_incrucisare[i+1]].getCod();
@@ -358,7 +369,6 @@ class Algoritm{
             std::pair<int, std::pair<double, double>> a_decod = decodificare(aux_a);
             std::pair<int, std::pair<double, double>> b_decod = decodificare(aux_b);
 
-            //verifici daca suntnumere valide inainte sa il pui in gen_sel ( adica daca e mai mic strict ca 2
 
             if(a_decod.second.first < dreapta){
                 generatie_selectie[indivizi_incrucisare[i]].setCod(aux_a);
@@ -386,9 +396,12 @@ class Algoritm{
         std::cout<<"\nPopulatia dupa mutatie:\n";
         afisareMatrice(generatie);
 
-        std::pair<double, double> maxim = maximGeneratie(generatie);
+        //std::pair<double, double>
+        Individ maxim = generatie[maximGeneratie(generatie)];
 
-        std::cout<<"Maximul primei generatii: "<<maxim.first<<" "<<maxim.second<<"\n";
+        //std::cout<<"Maximul primei generatii: "<<maxim.first<<" "<<maxim.second<<"\n";
+
+        std::cout<<"Maximul primei generatii: "<<maxim.getValoare() << " "<< maxim.getFitness()<<"\n";
 
 
     return maxim;
@@ -404,9 +417,14 @@ public:
         etapa_curenta = 1;
         double valoare_maxim;
 
-        primaEtapa();
+        Individ maxim = primaEtapa();
 
        while( etapa_curenta < nr_etape ){
+
+           generatie.push_back(maxim);
+
+           dim_pop ++;
+
            etapa_curenta++;
 
            probabilitate_selectie = probabilitateSelectie();
@@ -417,13 +435,19 @@ public:
 
            std::vector<Individ> generatie_selectie;
 
+           dim_pop --;
+
            int i = 1;
            while( i<= dim_pop){
                double nr = (float)rand()/RAND_MAX;
-               double poz = gasesteInterval(nr, 0, interval.size());
+               double poz = gasesteInterval(nr, 0, interval.size() - 1);
                generatie_selectie.push_back(generatie[poz-1]);
                i ++;
            }
+
+           //std::cout<<"\nPopulatia noua etapa dupa selectie:\n";
+           //afisareMatrice(generatie_selectie);
+
 
            std::vector<int> indivizi_incrucisare; // pozitiile celor ce trebuie incrucisati
            i = 1;
@@ -474,9 +498,20 @@ public:
 
            generatie = mutatii(generatie_selectie);
 
-           std::pair<double, double> maxim = maximGeneratie(generatie);
+           //std::pair<double, double>
+           Individ maxim_nou = generatie[maximGeneratie(generatie)];
 
-           std::cout<<maxim.first<<" "<<maxim.second<<"\n";
+           //std::cout<<"Maximul primei generatii: "<<maxim.first<<" "<<maxim.second<<"\n";
+
+           if(maxim_nou.getFitness() > maxim.getFitness()){
+               maxim = maxim_nou;
+           }
+
+           std::cout<<maxim.getValoare() << " "<< maxim.getFitness()<<"\n";
+
+
+
+
 
        }
 
