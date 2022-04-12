@@ -1,9 +1,9 @@
 #include <iostream>
 
 /* TEST DE ORIENTARE
- *            |  1  1  1 |   { <0, R in dreapta lui PQ
- * d(P,Q,R) = | xp xq xr | = { 0, coliniare
- *            | yp yq yr |   { >0, R in stanga lui PQ
+ *            |  1  1  1 |   { <0, R in dreapta lui PQ => CAZ 1
+ * d(P,Q,R) = | xp xq xr | = { 0, coliniare            => CAZ 2
+ *            | yp yq yr |   { >0, R in stanga lui PQ  => CAZ 3
  */
 
 struct Punct{
