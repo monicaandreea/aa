@@ -20,22 +20,24 @@ int testOrientare(Punct P, Punct Q, Punct R){
 }
 
 int main() {
+    int n;
+    std::cin>>n;
+    while(n--){
     int x, y;
-    std::cout<<"P:";
     std::cin>>x>>y;
     Punct P = {x, y};
-    std::cout<<"Q:";
     std::cin>>x>>y;
     Punct Q = {x, y};
-    std::cout<<"R:";
     std::cin>>x>>y;
     Punct R = {x, y};
 
     int rezultat = testOrientare(P, Q, R);
 
-    if(rezultat == 1) std::cout<<"Viraj la dreapta.";
-    else if(rezultat == 2) std::cout<<"Puncte coliniare";
-    else std::cout<<"Viraj la stanga.";
+    if(rezultat == 1) std::cout<<"RIGHT\n";
+    else if(rezultat == 2) std::cout<<"TOUCH\n";
+    else std::cout<<"LEFT\n";
+
+    }
 
     return 0;
 }
