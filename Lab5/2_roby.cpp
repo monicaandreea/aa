@@ -12,12 +12,12 @@ std::ofstream g("roby.out");
  */
 
 struct Punct{
-    int x;
-    int y;
+    long x;
+    long y;
 };
 
 int testOrientare(Punct P, Punct Q, Punct R){
-    int d = (Q.x * R.y) + (R.x * P.y) + (P.x * Q.y) - (Q.x * P.y) - (R.x * Q.y) - (P.x * R.y);
+    long d = (Q.x * R.y) + (R.x * P.y) + (P.x * Q.y) - (Q.x * P.y) - (R.x * Q.y) - (P.x * R.y);
 
     if(d < 0) return 1;
     else if(d == 0) return 2;
