@@ -6,66 +6,42 @@
 std::ifstream f("pozitie.in");
 std::ofstream g("pozitie.out");
 
-/*
- * Vedem de cate ori intersecteaza polinomul cu dreapta formata din (Q.x, Q.y) si (inf, Q.y)
- * numar impar => este inauntru
- * numar par => este inafara
- * se verifica de asemenea pentru fiecare dreapta daca este coliniar Q cu capetele dreptei
- * (daca se intersecteaza si este coliniar => este pe dreapta => este pe latura polinomului)
- * puncte testate: (-6,1), (2,5), (-1,4), (-2, 8), (4,2)
- */
-
 struct Punct{
-    int x;
-    int y;
+    long x;
+    long y;
 };
 
 int testOrientare(Punct P, Punct Q, Punct R){
-    int d = (Q.x * R.y) + (R.x * P.y) + (P.x * Q.y) - (Q.x * P.y) - (R.x * Q.y) - (P.x * R.y);
+    long d = (Q.x * R.y) + (R.x * P.y) + (P.x * Q.y) - (Q.x * P.y) - (R.x * Q.y) - (P.x * R.y);
 
     if(d < 0) return 1; // dreapta
     else if(d == 0) return 2; //coliniare
     else return 3; //stanga
 }
 
-bool intersecteaza(Punct P, Punct Q, Punct A, Punct B){
-    int rez_a = testOrientare(P, Q, A);
-    int rez_b = testOrientare(P, Q, B);
-    int rez_p = testOrientare(A, B, P);
-    int rez_q = testOrientare(A, B, Q);
-
-    if(testOrientare(A, B, P) == 2) return false;
-    if(testOrientare(A, B, Q) == 2) return false;
-
-    if( rez_a != rez_b && rez_p != rez_q) return true;
-
-    return false;
-}
-
 // 0- inafara poligonului
 // 1- inauntrul poligonului
 // 2- pe latura poligonului
 int pozitie(int n, const std::vector<Punct>& poligon, Punct punct){
-    int intersectari = 0;
-    Punct extrem = {1000, punct.y};
-
-    for(int i = 0 ; i<n-1 ; i++){
-        if(intersecteaza(poligon[i], poligon[i+1], punct, extrem)){
-            std::cout<<"intersecteaza: "<<i+1<<" si "<<i+2<<"\n";
-            if(testOrientare(poligon[i], poligon[i+1], punct) == 2)
-                        return 2;
-            intersectari++;
+    for(int i = 1 ; i<n ; i++){
+        int rezultat = testOrientare(poligon[i-1], poligon[i], punct);
+        if(rezultat == 1) {std::cout<<i-1<<" "<<i<<"\n";  return 0; }
+        else if(rezultat == 2){
+            if( punct.x >= std::min( poligon[i-1].x, poligon[i].x) && punct.x <= std::max(poligon[i-1].x, poligon[i].x) )
+                if( punct.y >= std::min( poligon[i-1].y, poligon[i].y) && punct.y <= std::max(poligon[i-1].y, poligon[i].y) )
+                    return 2;
         }
     }
 
-    if(intersecteaza(poligon[n-1], poligon[0], punct, extrem)){
-        if(testOrientare(poligon[n-1], poligon[0], punct) == 2)
-                    return 2;
-        intersectari++;
+    int rezultat = testOrientare(poligon[n-1], poligon[0], punct);
+    if(rezultat == 1) return 0;
+    else if(rezultat == 2){
+        if( punct.x >= std::min( poligon[n-1].x, poligon[0].x) && punct.x <= std::max(poligon[n-1].x, poligon[0].x) )
+            if( punct.y >= std::min( poligon[n-1].y, poligon[0].y) && punct.y <= std::max(poligon[n-1].y, poligon[0].y) )
+                return 2;
     }
 
-    if(intersectari % 2 == 0 && intersectari != 0) return 0;
-    else return 1;
+    return 1;
 }
 
 int main() {
