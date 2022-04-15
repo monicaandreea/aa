@@ -27,21 +27,33 @@ int testOrientare(Punct P, Punct Q, Punct R){
 int main() {
     int n, x, y;
     int dreapta = 0, stanga = 0, inainte = 0;
-    std::vector<Punct> poligon;
     f>>n;
-    for(int i = 0 ; i<n ; i++){
-        f>>x>>y;
-        poligon.push_back(Punct{x, y});
-    }
+    f>>x>>y;
+    Punct primul{x, y};
+    f>>x>>y;
+    Punct b{x, y};
+    f>>x>>y;
+    Punct c{x, y};
+    Punct a = primul;
 
-    for(int i = 2 ; i<n ; i++){
-        int rezultat = testOrientare(poligon[i-2], poligon[i-1], poligon[i]);
+    int rezultat = testOrientare(primul, b, c);
+    if(rezultat == 1) dreapta++;
+    else if(rezultat == 2) inainte++;
+    else stanga++;
+
+    for(int i = 3 ; i<n ; i++){
+        f>>x>>y;
+        a = b;
+        b = c;
+        c = Punct{x, y};
+
+        rezultat = testOrientare(a, b, c);
         if(rezultat == 1) dreapta++;
         else if(rezultat == 2) inainte++;
         else stanga++;
     }
 
-    int rezultat = testOrientare(poligon[n-2], poligon[n-1], poligon[0]);
+    rezultat = testOrientare(b, c, primul);
     if(rezultat == 1) dreapta++;
     else if(rezultat == 2) inainte++;
     else stanga++;
